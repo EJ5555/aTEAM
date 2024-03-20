@@ -90,7 +90,7 @@ class FDMK(nn.Module):
             v = [v,]*self.dim
         self._dx = v
         l = lambda a,b:a*b
-        s = reduce(l, (self.dx[j]**oj for j,oj in enumerate(self._order)), 1)
+        s = reduce(l, (self._dx[j]**oj for j,oj in enumerate(self._order)), 1)
         self.scale.fill_(1/s)
         return v
     @property

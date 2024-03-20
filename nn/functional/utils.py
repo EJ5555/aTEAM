@@ -9,11 +9,16 @@ def periodicpad(inputs, pad):
     """
     n = inputs.dim()
     inputs = inputs.permute(*list(range(n-1,-1,-1)))
+    print("padding: ",pad)
+    print("input dim: ",n)
     pad = iter(pad)
+    #quit()
     i = 0
     indx = []
     for a in pad:
         b = next(pad)
+        print("a: ",a,"; b: ",b) 
+        print("inputs size ", inputs.size())
         assert a<inputs.size()[i] and b<inputs.size()[i]
         permute = list(range(n))
         permute[i] = 0
