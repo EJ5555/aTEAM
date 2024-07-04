@@ -199,6 +199,16 @@ class NumpyFunctionInterface(ParamGroupsManager):
                     torch.zeros(1)).to(loss)
             self._need_backward = True
         return self._loss.item()
+    def f_wrapper(self, x, *args, **kw):
+        """
+        for Particle Swarm Optimizer, repeatedly calls self.f
+        and returns array for all particles
+        """
+        particle_loss = np.zeros(x.shape[0])
+        for i in range(x.shape[0]):
+            particle_loss[i] = self.f(x[i], *args, **kw)
+        return particle_loss
+
     def fprime(self, x, always_double=True, *args, **kw):
         self.f(x)
         if self._need_backward:
