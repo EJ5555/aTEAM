@@ -1,4 +1,4 @@
-"""interpolatons"""
+"""interpolations"""
 import numpy as np
 from numpy import *
 import torch
@@ -10,12 +10,11 @@ __all__ = ['lagrangeinterp',]
 def _ele2coe(m, degree):
     """
     Arguments:
-        m (int): interpolation dimension
-        degree (int): degree of Lagrange Interpolation Polynomial
-    Returns:
-        ele2coe (ndarray): dtype=int64, shape=[degree+1,...,degree+1,m]
-            for a_i in 0,...,degree, 
-                ele2coe[a_1,a_2,...,a_m] = array([a_1,...,a_m])
+    :param int m: interpolation dimension
+    :param int degree: degree of Lagrange Interpolation Polynomial
+    :return: ele2coe, for a_i in 0,...,degree:
+        ele2coe[a_1,a_2,...,a_m] = array([a_1,...,a_m])
+    :rtype: ndarray, dtype=int64, shape=[degree+1,...,degree+1,m]
     """
     ele2coe = zeros([degree+1,]*m+[m,])
     perm = arange(m+1)
@@ -40,19 +39,20 @@ def _fix_inputs(inputs, interp_dim, interp_degree,
         mesh_bound, mesh_size, ele2coe):
     """
     Arguments:
-        inputs (Tensor): DoubleTensor (cuda) or FloatTensor (cuda). 
-            torch.size=[N,m], where N is the number of points which will be 
-            interpolated, m is the spatial dimension.
-        interp_dim (int): spatial dimension, m=interp_dim
-        interp_degree (int): degree of Lagrange Interpolation Polynomial
-        mesh_bound (ndarray): dtype=double or float. shape=[2,m]. mesh_bound 
-            defines the interpolation domain.
-        mesh_size (ndarray): dtype=int, shape=[m,]. mesh_size defines the 
-            grid number of piecewise interpolation.
-        ele2coe (Tensor): see lagrangeinterp.
-    Returns:
-        flat_indices (Tensor)
-        points_shift (Tensor)
+    :param inputs: torch.size=[N,m], where N is the number of points
+        which will be interpolated, m is the spatial dimension
+    :type inputs: torch.DoubleTensor or torch.FloatTensor
+    :param int interp_dim: spatial dimension, m=interp_dim
+    :param int interp_degree: degree of Lagrange Interpolation Polynomial
+    :param mesh_bound: mesh_bound defines the interpolation domain
+    :type mesh_bound: ndarray, dtype=double or float, shape=[2,m]
+    :param mesh_size: mesh_size defines the grid number of
+        piecewise interpolation
+    :type mesh_size: ndarray, dtype=int, shape=[m,]
+    :param ele2coe: see lagrangeinterp
+    :type ele2coe: torch.Tensor
+    :returns: flat_indices, points_shift
+    :rtype: torch.Tensor, torch.Tensor
     """
     N = inputs.size()[0]
     m = interp_dim
@@ -88,14 +88,13 @@ def _fix_inputs(inputs, interp_dim, interp_degree,
 
 def _base(points_shift, interp_dim, interp_degree):
     """
-    Arguments:
-        points_shift (Tensor): DoubleTensor (cuda) or FloatTensor (cuda). 
-            torch.size=[N,m], where N is the number of points which will be 
-            interpolated, m is the spatial dimension.
-        interp_dim (int): spatial dimension, m=interp_dim
-        interp_degree (int): degree of Lagrange Interpolation Polynomial
-    Returns:
-        base (Tensor)
+    :param points_shift: size=[N,m], where N is the number of points
+        which will be interpolated, m is the spatial dimension
+    :type points_shift: torch.DoubleTensor or torch.FloatTensor
+    param int interp_dim: spatial dimension, m=interp_dim
+    :param int interp_degree: degree of Lagrange Interpolation Polynomial
+    :returns: base
+    :rtype: torch.Tensor
     """
     N = points_shift.size()[0]
     m = interp_dim
@@ -131,22 +130,21 @@ def lagrangeinterp(inputs, interp_coe, interp_dim, interp_degree,
     """
     piecewise Lagrange Interpolation in R^m
 
-    Arguments:
-        inputs (Tensor): DoubleTensor (cuda) or FloatTensor (cuda). 
-            torch.size=[N,m], where N is the number of points which will be 
-            interpolated, m is the spatial dimension.
-        interp_dim (int): spatial dimension, m=interp_dim
-        interp_coe (Tensor): DoubleTensor (cuda) or FloatTensor (cuda).
-            torch.size(np.array(mesh_size)*interp_degree+1)
-        interp_degree (int): degree of Lagrange Interpolation Polynomial
-        mesh_bound (tuple): ((l_1,l_2,...,l_n),(u_1,u_2,...,u_n)). mesh_bound 
-            defines the interpolation domain. l_i,u_i is lower and upper bound
-            of dimension i.
-        mesh_size (tuple): mesh_size defines the grid number of 
-            piecewise interpolation. mesh_size[i] is mesh num of dimension i.
-    Returns:
-        outputs (Tensor): torch.size=[N,], interpolation value of inputs 
-            using interp_coe.
+    :param inputs: torch.size=[N,m], where N is the number of points
+        which will be interpolated, m is the spatial dimension
+    :type inputs: torch.DoubleTensor or torch.FloatTensor
+    :param int interp_dim: spatial dimension, m=interp_dim
+    :param interp_coe: torch.size(np.array(mesh_size)*interp_degree+1)
+    :type interp_coe: torch.DoubleTensor or torch.FloatTensor
+    :param int interp_degree: degree of Lagrange Interpolation Polynomial
+    :param mesh_bound:  mesh_bound defines the interpolation domain
+        l_i,u_i is lower and upper bound of dimension i
+    :type mesh_bound: tuple with size ((l_1,l_2,...,l_n),(u_1,u_2,...,u_n))
+    :param mesh_size: mesh_size defines the grid number of piecewise
+        interpolation. mesh_size[i] is mesh num of dimension i
+    :type mesh_size: tuple 
+    :return: outputs interpolation value of inputs using interp_coe
+    :rtype: torch.Tensor with size=[N,] 
     """
     inputs = inputs.contiguous()
     inputs = inputs.view([-1,interp_dim])

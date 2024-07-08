@@ -43,14 +43,13 @@ def _less_order_m(d,m):
 class FDMK(nn.Module):
     """
     Moment matrix and kernel for finite difference.
-    Arguments:
-        dim (int): dimension
-        kernel_size (tuple of int): size of differential kernels
-        order (tuple of int): order of differential kernels
-        dx (double): the MomentBank.kernel will automatically compute kernels 
-            according to MomentBank.moment and MomentBank.dx
-        constraint (string): 'moment' or 'free', See FDMK.x_proj 
-            and FDMK.grad_proj.
+    :param int dim: dimension
+    :param tuple(int) kernel_size: size of differential kernels
+    :param tuple(int) order: order of differential kernels
+    :param double dx: the MomentBank.kernel will automatically compute kernels 
+        according to MomentBank.moment and MomentBank.dx
+    :param string constraint:  'moment' or 'free', See FDMK.x_proj 
+        and FDMK.grad_proj.
     """
     def __init__(self, dim, kernel_size, order, dx=1.0, constraint='moment'):
         super(FDMK, self).__init__()
@@ -84,7 +83,7 @@ class FDMK(nn.Module):
     @dx.setter
     def dx(self,v):
         """
-        v (ndarray): dx for each axis
+        :param ndarray v: dx for each axis
         """
         if not iterable(v):
             v = [v,]*self.dim
@@ -140,11 +139,13 @@ class _FDNd(FDMK):
     """
     Finite difference automatically handle boundary conditions
     Arguments for class:`_FDNd`:
-        dim (int): dimension
-        kernel_size (tuple of int): finite difference kernel size
-        boundary (string): 'Dirichlet' or 'Periodic'
+    :param int dim: dimension
+    :param tuple(int) kernel_size : finite difference kernel size
+    :param string boundary: 'Dirichlet' or 'Periodic'
     Arguments for class:`FDMK`:
-        order, dx, constraint
+    :param order:
+    :param dx:
+    :param constraint:
     """
     def __init__(self, dim, kernel_size, order, 
             dx=1.0, constraint='moment', boundary='Dirichlet'):
@@ -175,14 +176,14 @@ class _FDNd(FDMK):
         raise NotImplementedError
     def forward(self, inputs, kernel=None, scale=None):
         """
-        Arguments:
-            inputs (Tensor): torch.size: 
-                (batch_size, spatial_size[0], spatial_size[1], ...)
-            kernel (Tensor): torch.size: 
-                (kernel_size[0], kernel_size[1], ...)
-            scale (scalar): depends on self.dx
-        Returns:
-            approximation of self.order partial derivative of inputs
+        :param inputs:
+        :type inputs: torch.Tensor with shape (batch_size, spatial_size[0],
+            spatial_size[1], ...)
+        :param kernel:
+        :type kernel: torch.Tensor with shape (kernel_size[0],
+            kernel_size[1], ...)
+        :param torch.Tensor scale: depends on self.dx, scalar
+        :return: approximation of self.order partial derivative of inputs
         """
         scale = (self.scale if scale is None else scale)
         kernel = (self.kernel if kernel is None else kernel)
@@ -193,6 +194,9 @@ class _FDNd(FDMK):
         return self.conv(inputs, kernel[newaxis,newaxis])[:,0]
 
 class FD1d(_FDNd):
+    """
+    1D case of :class:`~aTEAM.nn.module._FDNd`
+    """
     def __init__(self, kernel_size, order, 
             dx=1.0, constraint='moment', boundary='Dirichlet'):
         if isinstance(order, int):
@@ -201,12 +205,18 @@ class FD1d(_FDNd):
                 dx=dx, constraint=constraint, boundary=boundary)
         self.conv = F.conv1d
 class FD2d(_FDNd):
+    """
+    2D case of :class:`~aTEAM.nn.module._FDNd`
+    """
     def __init__(self, kernel_size, order, 
             dx=1.0, constraint='moment', boundary='Dirichlet'):
         super(FD2d, self).__init__(2, kernel_size, order, 
                 dx=dx, constraint=constraint, boundary=boundary)
         self.conv = F.conv2d
 class FD3d(_FDNd):
+    """
+    3D case of :class:`~aTEAM.nn.module._FDNd`
+    """
     def __init__(self, kernel_size, order, 
             dx=1.0, constraint='moment', boundary='Dirichlet'):
         super(FD3d, self).__init__(3, kernel_size, order, 
