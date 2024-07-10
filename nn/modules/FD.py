@@ -43,6 +43,7 @@ def _less_order_m(d,m):
 class FDMK(nn.Module):
     """
     Moment matrix and kernel for finite difference.
+
     :param int dim: dimension
     :param tuple(int) kernel_size: size of differential kernels
     :param tuple(int) order: order of differential kernels
@@ -83,6 +84,8 @@ class FDMK(nn.Module):
     @dx.setter
     def dx(self,v):
         """
+        sets self.scale to 1/dx**derivative order, for finite differences
+
         :param ndarray v: dx for each axis
         """
         if not iterable(v):
@@ -138,11 +141,14 @@ class FDMK(nn.Module):
 class _FDNd(FDMK):
     """
     Finite difference automatically handle boundary conditions
-    Arguments for class:`_FDNd`:
+    Arguments for :class:`~aTEAM.nn.modules.FD._FDnd` :
+
     :param int dim: dimension
     :param tuple(int) kernel_size : finite difference kernel size
     :param string boundary: 'Dirichlet' or 'Periodic'
-    Arguments for class:`FDMK`:
+
+    Arguments for :class:`~aTEAM.nn.modules.FD.FDMK` :
+
     :param order:
     :param dx:
     :param constraint:
